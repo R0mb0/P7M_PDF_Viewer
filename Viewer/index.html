@@ -10,48 +10,41 @@
 <body>
   <div id="app">
 
-    <!-- Titolo sempre visibile -->
     <h1 id="title" class="page-title">Apri documenti P7m</h1>
 
-    <!-- Schermata iniziale: scompare completamente quando il viewer è attivo -->
+    <!-- Schermata iniziale -->
     <section id="landing" class="card">
       <div class="landing-controls">
-        <button id="openBtn" class="btn btn-primary">
-          Apri documento
-        </button>
+        <button id="openBtn" class="btn btn-primary">Apri documento</button>
         <input id="fileInput" type="file" accept=".p7m" hidden>
-
         <div id="dropZone" class="drop-zone" aria-label="Drop zone">
           <div class="drop-zone__label" id="dropLabel">Rilascia qui il file</div>
         </div>
-
         <div id="hint" class="hint"></div>
       </div>
     </section>
 
-    <!-- Viewer -->
-    <section id="viewerSection" class="viewer hidden">
-      <div id="pagesContainer" class="pages"></div>
-
+    <!-- Embedded PDF viewer (uses <embed> for better Chrome compatibility) -->
+    <section id="embedSection" class="viewer hidden">
+      <div class="embedWrapper">
+        <!-- IMPORTANT: no sandbox here -->
+        <embed id="pdfEmbed" type="application/pdf" />
+      </div>
       <div class="actions">
-        <button id="downloadBtn" class="btn btn-primary">Scarica documento</button>
-        <button id="resetBtn" class="btn btn-accent">Reset</button>
+        <button id="downloadBtn2" class="btn btn-primary">Scarica documento</button>
+        <button id="resetBtn2" class="btn btn-accent">Reset</button>
       </div>
     </section>
 
-    <!-- Messaggi di stato / errori -->
     <div id="status" class="status" role="status" aria-live="polite"></div>
   </div>
 
-  <!-- Librerie pdf.js locali -->
   <script src="./pdf.min.js"></script>
   <script>
     if (window['pdfjsLib']) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = './pdf.worker.min.js';
     }
   </script>
-
-  <!-- App -->
   <script src="./app.js"></script>
 </body>
 </html>

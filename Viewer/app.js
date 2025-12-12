@@ -1,10 +1,8 @@
 (function() {
   'use strict';
 
-  // Rilevazione lingua
   const isItalian = (navigator.language || (navigator.languages && navigator.languages[0]) || 'en')
     .toLowerCase().startsWith('it');
-
   const t = isItalian ? {
     title: 'Apri documenti P7m',
     open: 'Apri documento',
@@ -15,7 +13,6 @@
     noPdfFound: 'Il file non contiene un PDF valido. Assicurati che sia un P7M con documento PDF.',
     download: 'Scarica documento',
     reset: 'Reset',
-    pagesCount: (n) => `${n} pagine`,
   } : {
     title: 'Open P7m documents',
     open: 'Open document',
@@ -26,134 +23,104 @@
     noPdfFound: 'No valid PDF was found in the provided file. Make sure it is a P7M containing a PDF.',
     download: 'Download document',
     reset: 'Reset',
-    pagesCount: (n) => `${n} pages`,
   };
 
-  // Elementi DOM
-  const titleEl      = document.getElementById('title');
-  const openBtn      = document.getElementById('openBtn');
-  const fileInput    = document.getElementById('fileInput');
-  const dropZone     = document.getElementById('dropZone');
-  const dropLabel    = document.getElementById('dropLabel');
-  const hintEl       = document.getElementById('hint');
-  const statusEl     = document.getElementById('status');
-  const landing      = document.getElementById('landing');
+  const titleEl   = document.getElementById('title');
+  const openBtn   = document.getElementById('openBtn');
+  const fileInput = document.getElementById('fileInput');
+  const dropZone  = document.getElementById('dropZone');
+  const dropLabel = document.getElementById('dropLabel');
+  const hintEl    = document.getElementById('hint');
+  const statusEl  = document.getElementById('status');
+  const landing   = document.getElementById('landing');
 
-  const viewer       = document.getElementById('viewerSection');
-  const pagesContainer = document.getElementById('pagesContainer');
-  const downloadBtn  = document.getElementById('downloadBtn');
-  const resetBtn     = document.getElementById('resetBtn');
+  const embedSection = document.getElementById('embedSection');
+  const pdfEmbed     = document.getElementById('pdfEmbed');
 
-  // Testi iniziali
-  titleEl.textContent   = t.title;
-  openBtn.textContent   = t.open;
+  const downloadBtn2 = document.getElementById('downloadBtn2');
+  const resetBtn2    = document.getElementById('resetBtn2');
+
+  titleEl.textContent = t.title;
+  openBtn.textContent = t.open;
   dropLabel.textContent = t.dropHere;
-  hintEl.textContent    = t.hint;
-  downloadBtn.textContent = t.download;
-  resetBtn.textContent    = t.reset;
+  hintEl.textContent = t.hint;
+  downloadBtn2.textContent = t.download;
+  resetBtn2.textContent = t.reset;
   document.title = t.title;
 
-  // Stato
   let currentPdfBlob = null;
-  let currentPdfArrayBuffer = null;
   let currentDownloadName = null;
+  let currentPdfObjectUrl = null;
   let lockedForReset = false;
 
-  // UI helpers
-  function setStatus(msg) {
-    statusEl.textContent = msg || '';
-  }
+  function setStatus(msg) { statusEl.textContent = msg || ''; }
   function showLanding() {
     landing.classList.remove('hidden');
-    viewer.classList.add('hidden');
+    embedSection.classList.add('hidden');
     lockedForReset = false;
-    enableInputs(true);
+    openBtn.disabled = false;
+    cleanupObjectUrl();
     setStatus('');
   }
-  function showViewer() {
-    // Nasconde completamente la sezione landing (rimane solo il titolo)
+  function showEmbeddedViewer() {
     landing.classList.add('hidden');
-    viewer.classList.remove('hidden');
-    // blocca ulteriori input fino al reset
+    embedSection.classList.remove('hidden');
     lockedForReset = true;
-    enableInputs(false);
+    openBtn.disabled = true;
   }
-  function clearViewer() {
-    pagesContainer.innerHTML = '';
-  }
-  function enableInputs(enable) {
-    openBtn.disabled = !enable;
+  function cleanupObjectUrl() {
+    if (currentPdfObjectUrl) {
+      URL.revokeObjectURL(currentPdfObjectUrl);
+      currentPdfObjectUrl = null;
+    }
+    // Clear embed
+    pdfEmbed.removeAttribute('src');
   }
 
-  // Pulsante "Apri documento"
+  // Open input
   openBtn.addEventListener('click', () => {
     if (lockedForReset) return;
     fileInput.click();
   });
-
-  // Selezione file
   fileInput.addEventListener('change', async (e) => {
     if (lockedForReset) { fileInput.value=''; return; }
     const file = e.target.files && e.target.files[0];
     if (file) handleFile(file);
-    fileInput.value = ''; // reset input
+    fileInput.value = '';
   });
 
   // Drag & drop
-  function allowDragEvents() {
-    ['dragenter','dragover'].forEach((evt) => {
-      dropZone.addEventListener(evt, onDragEnterOver);
-    });
-    ['dragleave','dragend','drop'].forEach((evt) => {
-      dropZone.addEventListener(evt, onDragLeaveDrop);
-    });
-    dropZone.addEventListener('drop', onDrop);
-  }
-  function removeDragEvents() {
-    ['dragenter','dragover'].forEach((evt) => {
-      dropZone.removeEventListener(evt, onDragEnterOver);
-    });
-    ['dragleave','dragend','drop'].forEach((evt) => {
-      dropZone.removeEventListener(evt, onDragLeaveDrop);
-    });
-    dropZone.removeEventListener('drop', onDrop);
-  }
-
   function onDragEnterOver(e) {
     if (lockedForReset) { e.preventDefault(); e.stopPropagation(); return; }
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     dropZone.classList.add('dragover');
     setStatus(t.dropHere);
   }
   function onDragLeaveDrop(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     dropZone.classList.remove('dragover');
     if (!lockedForReset) setStatus('');
   }
   function onDrop(e) {
     if (lockedForReset) { e.preventDefault(); e.stopPropagation(); return; }
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
     if (file) handleFile(file);
   }
+  ['dragenter','dragover'].forEach(evt => dropZone.addEventListener(evt, onDragEnterOver));
+  ['dragleave','dragend','drop'].forEach(evt => dropZone.addEventListener(evt, onDragLeaveDrop));
+  dropZone.addEventListener('drop', onDrop);
 
-  allowDragEvents();
-
-  // Reset
-  resetBtn.addEventListener('click', () => {
+  // Reset/Download
+  function doReset() {
     currentPdfBlob = null;
-    currentPdfArrayBuffer = null;
     currentDownloadName = null;
-    clearViewer();
+    cleanupObjectUrl();
     showLanding();
-    allowDragEvents();
-  });
+  }
+  resetBtn2.addEventListener('click', doReset);
 
-  // Download
-  downloadBtn.addEventListener('click', () => {
+  function doDownload() {
     if (!currentPdfBlob || !currentDownloadName) return;
     const url = URL.createObjectURL(currentPdfBlob);
     const a = document.createElement('a');
@@ -163,9 +130,9 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  });
+  }
+  downloadBtn2.addEventListener('click', doDownload);
 
-  // Gestione file p7m
   async function handleFile(file) {
     if (!file.name.toLowerCase().endsWith('.p7m')) {
       setStatus(t.invalidType);
@@ -176,33 +143,27 @@
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdfBuffer = extractPdfFromP7m(arrayBuffer);
+      if (!pdfBuffer) { setStatus(t.noPdfFound); return; }
 
-      if (!pdfBuffer) {
-        setStatus(t.noPdfFound);
-        return;
-      }
-
-      currentPdfArrayBuffer = pdfBuffer;
       currentPdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
-
       let base = file.name.replace(/\.p7m$/i, '');
       if (!base.toLowerCase().endsWith('.pdf')) base += '.pdf';
       currentDownloadName = base;
 
-      clearViewer();
-      await renderPdfInto(pagesContainer, pdfBuffer);
-      showViewer(); // nasconde completamente il landing
-      setStatus(`${t.pagesCount(pagesContainer.childElementCount)} — ${currentDownloadName}`);
+      // Use Blob URL in <embed>
+      cleanupObjectUrl();
+      currentPdfObjectUrl = URL.createObjectURL(currentPdfBlob);
+      pdfEmbed.setAttribute('src', currentPdfObjectUrl);
 
-      // durante il viewer non servono più eventi drag sulla dropzone
-      removeDragEvents();
+      showEmbeddedViewer();
+      setStatus(currentDownloadName);
     } catch (err) {
       console.error(err);
       setStatus(err && err.message ? err.message : t.noPdfFound);
     }
   }
 
-  // Estrazione PDF da P7M
+  // PDF extraction (same as before)
   function extractPdfFromP7m(buffer) {
     const sequencesToRemove = [
       [4,130,1,11],[4,130,1,67],[4,130,1,87],[4,130,1,97],[4,130,1,115],
@@ -219,8 +180,8 @@
     buffer = removeSequencesFromArrayBuffer(buffer, sequencesToRemove);
 
     const u8 = new Uint8Array(buffer);
-    const pdfStart = utf8Bytes('%PDF');
-    const pdfEnd   = utf8Bytes('%%EOF');
+    const pdfStart = new TextEncoder().encode('%PDF');
+    const pdfEnd   = new TextEncoder().encode('%%EOF');
 
     const startIndex = indexOfSequence(u8, pdfStart, 0, false);
     const endIndex   = indexOfSequence(u8, pdfEnd, 0, true);
@@ -232,11 +193,6 @@
     const pdfSlice = u8.slice(startIndex, sliceEnd);
     return pdfSlice.buffer;
   }
-
-  function utf8Bytes(str) {
-    return new TextEncoder().encode(str);
-  }
-
   function indexOfSequence(uint8Array, sequence, fromIndex = 0, searchLast = false) {
     let found = -1;
     outer: for (let i = fromIndex; i <= uint8Array.length - sequence.length; i++) {
@@ -248,7 +204,6 @@
     }
     return found;
   }
-
   function removeSequencesFromArrayBuffer(buffer, sequences) {
     let u8 = new Uint8Array(buffer);
     sequences.forEach(seq => {
@@ -281,83 +236,5 @@
     return u8.buffer;
   }
 
-  // Rendering PDF con pdf.js + text layer
-  async function renderPdfInto(container, arrayBuffer) {
-    if (!window['pdfjsLib']) throw new Error('pdf.js non disponibile');
-
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-    const pdf = await loadingTask.promise;
-
-    const containerWidth = container.clientWidth || 900;
-
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-
-      const initialViewport = page.getViewport({ scale: 1 });
-      const scale = (containerWidth - 32) / initialViewport.width;
-      const viewport = page.getViewport({ scale });
-
-      const pageWrapper = document.createElement('div');
-      pageWrapper.className = 'page';
-      pageWrapper.style.width = `${viewport.width}px`;
-      pageWrapper.style.height = `${viewport.height}px`;
-      container.appendChild(pageWrapper);
-
-      const canvas = document.createElement('canvas');
-      canvas.width  = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-      pageWrapper.appendChild(canvas);
-      const ctx = canvas.getContext('2d', { alpha: false });
-
-      await page.render({ canvasContext: ctx, viewport }).promise;
-
-      // text layer per selezione testo
-      try {
-        const textContent = await page.getTextContent();
-        const textLayerDiv = document.createElement('div');
-        textLayerDiv.className = 'textLayer';
-        textLayerDiv.style.width = `${viewport.width}px`;
-        textLayerDiv.style.height = `${viewport.height}px`;
-        pageWrapper.appendChild(textLayerDiv);
-
-        if (pdfjsLib.renderTextLayer) {
-          await pdfjsLib.renderTextLayer({
-            textContent,
-            container: textLayerDiv,
-            viewport,
-            textDivs: [],
-          }).promise;
-        } else {
-          renderTextLayerFallback(textContent, textLayerDiv, viewport);
-        }
-      } catch (e) {
-        console.warn('Text layer non disponibile:', e);
-      }
-    }
-  }
-
-  // Fallback minimale per il text layer (senza pdf_viewer.js)
-  function renderTextLayerFallback(textContent, container, viewport) {
-    const Util = pdfjsLib && pdfjsLib.Util;
-    if (!Util) return;
-
-    for (const item of textContent.items) {
-      const tx = Util.transform(viewport.transform, item.transform);
-      const angle = Math.atan2(tx[2], tx[3]);
-      const fontSize = Math.sqrt(tx[2]*tx[2] + tx[3]*tx[3]);
-
-      const span = document.createElement('span');
-      span.textContent = item.str;
-      span.style.fontSize = `${fontSize}px`;
-      span.style.transform = `translate(${tx[4]}px, ${tx[5] - fontSize}px) rotate(${angle}rad)`;
-      // rendere selezionabile
-      span.style.position = 'absolute';
-      span.style.userSelect = 'text';
-      container.appendChild(span);
-    }
-  }
-
-  // Stato iniziale
   showLanding();
-
 })();
