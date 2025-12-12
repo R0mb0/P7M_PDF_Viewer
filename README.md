@@ -1,15 +1,21 @@
 # P7M_PDF_Viewer
 
-
+[![pages-build-deployment](https://github.com/R0mb0/P7M_PDF_Viewer/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/R0mb0/P7M_PDF_Viewer/actions/workflows/pages/pages-build-deployment)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/d5dbe919a0fa48abafd35ba102a2aa2c)](https://app.codacy.com/gh/R0mb0/P7M_PDF_Viewer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/R0mb0/P7M_PDF_Viewer)
 [![Open Source Love svg3](https://badges.frapsoft.com/os/v3/open-source.svg?v=103)](https://github.com/R0mb0/P7M_PDF_Viewer)
 [![MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/license/mit)
+[![Donate](https://img.shields.io/badge/PayPal-Donate%20to%20Author-blue.svg)](http://paypal.me/R0mb0)
 
 Client‑side viewer to open PDF documents embedded in P7M (CAdES) files directly in the browser. Modern UI, automatic light/dark theme and language detection, drag & drop, stacked page rendering, selectable text, and local download. 100% front‑end, no backend or uploads.
 
 <div align="center">
 
-## 👉 [Click here to test the page!]() 👈
+## 👉 [Click here to test the page!](https://r0mb0.github.io/P7M_PDF_Viewer/) 👈
+
+[![example 1](https://github.com/R0mb0/P7M_PDF_Viewer/blob/main/Readme_imgs/1.png?raw=true)](https://r0mb0.github.io/P7M_PDF_Viewer/)
+
+[![example 2](https://github.com/R0mb0/P7M_PDF_Viewer/blob/main/Readme_imgs/2.png?raw=true)](https://r0mb0.github.io/P7M_PDF_Viewer/)
 
 </div>
 
