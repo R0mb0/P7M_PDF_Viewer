@@ -1,0 +1,240 @@
+:root {
+  --bg: #f6f7f9;
+  --card-bg: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+
+  --primary-bg: #22c55e;
+  --primary-hover: #16a34a;
+  --primary-text: #ffffff;
+
+  --accent-bg: #f59e0b;
+  --accent-hover: #d97706;
+  --accent-text: #1f2937;
+
+  --border: #e5e7eb;
+  --shadow: 0 8px 24px rgba(0,0,0,0.08);
+
+  --drop-bg: #e0f2fe;
+  --drop-border: #93c5fd;
+  --drop-text: #0ea5e9;
+
+  --page-bg: #ffffff;
+  --page-border: #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1020;
+    --card-bg: #121926;
+    --text: #e5e7eb;
+    --muted: #94a3b8;
+
+    --primary-bg: #22c55e;
+    --primary-hover: #16a34a;
+    --primary-text: #0b1020;
+
+    --accent-bg: #f59e0b;
+    --accent-hover: #d97706;
+    --accent-text: #0b1020;
+
+    --border: #273449;
+    --shadow: 0 10px 28px rgba(0,0,0,0.35);
+
+    --drop-bg: #082f49;
+    --drop-border: #0ea5e9;
+    --drop-text: #7dd3fc;
+
+    --page-bg: #0b1020;
+    --page-border: #273449;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--text);
+}
+
+#app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-title {
+  margin: 0 0 16px;
+  font-size: 2rem;
+  letter-spacing: 0.2px;
+  text-align: center;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  border-radius: 16px;
+  padding: 28px;
+  text-align: center;
+}
+
+.hint {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  min-width: 220px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  box-shadow: var(--shadow);
+}
+
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary-bg);
+  color: var(--primary-text);
+}
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-accent {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+.btn-accent:hover { background: var(--accent-hover); }
+
+.drop-zone {
+  margin: 18px auto 0;
+  width: min(720px, 95%);
+  min-height: 140px;
+  border: 2px dashed var(--drop-border);
+  background: var(--drop-bg);
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: var(--drop-text);
+  user-select: none;
+}
+.drop-zone.dragover {
+  outline: 4px solid var(--drop-border);
+  filter: brightness(1.05);
+}
+.drop-zone__label {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.status {
+  margin-top: 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Utility */
+.hidden { display: none !important; }
+
+/* Viewer */
+.viewer.hidden { display: none; }
+.viewer {
+  margin-top: 24px;
+}
+
+.pages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.page {
+  position: relative;
+  background: var(--page-bg);
+  border: 1px solid var(--page-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  padding: 0;
+}
+
+.page canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* text layer sovrapposto al canvas per avere testo selezionabile */
+.textLayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;   /* verrà ridimensionato in js */
+  height: 100%;  /* idem */
+  color: transparent;      /* testo invisibile ma selezionabile */
+  pointer-events: auto;    /* CONSENTE la selezione */
+  z-index: 5;              /* sopra il canvas */
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.textLayer span {
+  position: absolute;
+  white-space: pre;
+  transform-origin: 0 0;
+  line-height: 1;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* evidenziazione durante la selezione (opzionale) */
+.textLayer ::selection {
+  background: rgba(0, 140, 255, 0.25);
+}
+
+/* Azioni in fondo */
+.actions {
+  margin: 20px 0 10px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* Embedded PDF viewer wrapper (per <embed> o <object>) */
+.embedWrapper {
+  width: 100%;
+  height: calc(100vh - 220px); /* spazio visibile grande per il PDF */
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  background: var(--card-bg);
+}
+.embedWrapper embed,
+.embedWrapper object {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: var(--card-bg);
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  .btn { min-width: 180px; height: 44px; }
+  .embedWrapper { height: calc(100vh - 180px); }
+}
