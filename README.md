@@ -1,4 +1,4 @@
-# P7M_PDF_Viewer
+# P7M PDF Viewer
 
 [![pages-build-deployment](https://github.com/R0mb0/P7M_PDF_Viewer/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/R0mb0/P7M_PDF_Viewer/actions/workflows/pages/pages-build-deployment)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d5dbe919a0fa48abafd35ba102a2aa2c)](https://app.codacy.com/gh/R0mb0/P7M_PDF_Viewer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
